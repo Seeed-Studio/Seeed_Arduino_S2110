@@ -1,0 +1,20 @@
+#######################################
+# Syntax Coloring Map For S2110
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Controller	KEYWORD1
+controllerClass KEYWORD1
+sensorClass KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+poll    KEYWORD2
+size	KEYWORD2	
+addSensor KEYWORD2
