@@ -12,9 +12,9 @@ public:
     sensorO2() : sensorClass("O2"){};
     ~sensorO2(){};
 
-    virtual bool init();
-    virtual bool connected();
-    virtual bool sample();
+    uint16_t init(uint16_t reg);
+    bool connected();
+    bool sample();
 
     enum
     {
@@ -23,18 +23,21 @@ public:
     };
 };
 
-bool sensorO2::init()
+uint16_t sensorO2::init(uint16_t reg)
 {
+    uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorO2::MAX; i++)
     {
         sensorClass::reg_t value;
+        value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
         value.value.s32 = 0;
-        m_valueVector.push_back(value);
+        m_valueVector.emplace_back(value);
+        t_reg += sensorClass::valueLength(value.type);
     }
 
     _connected = true;
-    return true;
+    return t_reg - reg;
 }
 
 bool sensorO2::sample()

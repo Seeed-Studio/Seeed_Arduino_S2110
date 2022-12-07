@@ -46,7 +46,7 @@ public:
         } value;
     } reg_t;
 
-    virtual bool init() = 0;
+    virtual uint16_t init(uint16_t reg) = 0;
     virtual bool connected() = 0;
     virtual bool sample() = 0;
     std::vector<sensorClass::reg_t> getMeasureValue();

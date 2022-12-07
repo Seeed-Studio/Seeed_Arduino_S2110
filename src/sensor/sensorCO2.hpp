@@ -9,9 +9,10 @@ class sensorCO2 : public sensorClass
 public:
     sensorCO2() : sensorClass("CO2"){};
     ~sensorCO2(){};
-    virtual bool init();
-    virtual bool connected();
-    virtual bool sample();
+
+    uint16_t init(uint16_t reg);
+    bool connected();
+    bool sample();
 
     enum
     {
@@ -25,14 +26,17 @@ private:
     SensirionI2CScd4x _scd4x; // IIC
 };
 
-bool sensorCO2::init()
+uint16_t sensorCO2::init(uint16_t reg)
 {
+    uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorCO2::MAX; i++)
     {
         sensorClass::reg_t value;
+        value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
         value.value.s32 = 0;
-        m_valueVector.push_back(value);
+        m_valueVector.emplace_back(value);
+        t_reg += sensorClass::valueLength(value.type);
     }
 
     GROVE_SWITCH_IIC;
@@ -66,7 +70,7 @@ bool sensorCO2::init()
 
     _connected = true;
 
-    return true;
+    return t_reg - reg;
 }
 
 bool sensorCO2::sample()

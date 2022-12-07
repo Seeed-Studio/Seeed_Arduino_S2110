@@ -12,9 +12,10 @@ class sensorBMP280 : public sensorClass
 public:
     sensorBMP280() : sensorClass("BMP280"){};
     ~sensorBMP280(){};
-    virtual bool init();
-    virtual bool connected();
-    virtual bool sample();
+
+    uint16_t init(uint16_t reg);
+    bool connected();
+    bool sample();
 
     enum
     {
@@ -29,14 +30,18 @@ private:
     BMP280 _bmp280; // IIC
 };
 
-bool sensorBMP280::init()
+uint16_t sensorBMP280::init(uint16_t reg)
 {
+    uint16_t t_reg = reg;
+
     for (uint16_t i = 0; i < sensorBMP280::MAX; i++)
     {
         sensorClass::reg_t value;
+        value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
         value.value.s32 = 0;
-        m_valueVector.push_back(value);
+        m_valueVector.emplace_back(value);
+        t_reg += sensorClass::valueLength(value.type);
     }
 
     GROVE_SWITCH_IIC;
@@ -48,7 +53,7 @@ bool sensorBMP280::init()
     }
 
     _connected = true;
-    return true;
+    return t_reg - reg;
 }
 
 bool sensorBMP280::sample()

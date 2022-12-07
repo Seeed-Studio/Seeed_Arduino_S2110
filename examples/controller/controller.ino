@@ -1,18 +1,16 @@
 #include <Arduino.h>
 #include "controller.hpp"
 
-#include "sensorBMP280.hpp"
-#include "sensorLight.hpp"
-#include "sensorFlame.hpp"
-#include "sensorO2.hpp"
-#include "sensorCO2.hpp"
-#include "sensorSunlight.hpp"
-
 controllerClass controller;
 
 void setup()
 {
   Serial.begin(9600);
+
+  while (!Serial)
+    ;
+
+  delay(3000);
 
   // light
   sensorLight *light = new sensorLight();

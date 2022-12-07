@@ -11,30 +11,33 @@ public:
     sensorLight() : sensorClass("Light V1.2"){};
     ~sensorLight(){};
 
-        virtual bool init();
-    virtual bool connected();
-    virtual bool sample();
+    uint16_t init(uint16_t reg);
+    bool connected();
+    bool sample();
 
     enum
     {
         LIGHT = 0,
-        MAX = 0
+        MAX
     };
 };
 
-bool sensorLight::init()
+uint16_t sensorLight::init(uint16_t reg)
 {
     _connected = true;
+    uint16_t t_reg = reg;
 
     for (uint16_t i = 0; i < sensorLight::MAX; i++)
     {
         sensorClass::reg_t value;
+        value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
+        t_reg += sensorClass::valueLength(value.type);
         value.value.s32 = 0;
-        m_valueVector.push_back(value);
+        m_valueVector.emplace_back(value);
     }
 
-    return true;
+    return t_reg - reg;
 }
 
 bool sensorLight::sample()

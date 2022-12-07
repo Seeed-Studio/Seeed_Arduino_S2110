@@ -11,7 +11,7 @@ public:
     sensorFlame() : sensorClass("Flame"){};
     ~sensorFlame(){};
 
-    bool init();
+    uint16_t init(uint16_t reg);
     bool connected();
     bool sample();
 
@@ -22,19 +22,22 @@ public:
     };
 };
 
-bool sensorFlame::init()
+uint16_t sensorFlame::init(uint16_t reg)
 {
 
+    uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorFlame::MAX; i++)
     {
         sensorClass::reg_t value;
+        value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
         value.value.s32 = 0;
-        m_valueVector.push_back(value);
+        m_valueVector.emplace_back(value);
+        t_reg += sensorClass::valueLength(value.type);
     }
 
     _connected = true;
-    return true;
+    return t_reg - reg;
 }
 
 bool sensorFlame::sample()
