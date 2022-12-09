@@ -1,15 +1,13 @@
-#ifndef _SENSOR_LIGHT_H
-#define _SENSOR_LIGHT_H
+#ifndef _SENSOR_UV_H
+#define _SENSOR_UV_H
 
 #include "sensorClass.hpp"
 
-#define LIGHT_ADC_PIN A3
-
-class sensorLight : public sensorClass
+class sensorUV : public sensorClass
 {
 public:
-    sensorLight() : sensorClass("Light V1.2"){};
-    ~sensorLight(){};
+    sensorUV() : sensorClass("UV V1.1"){};
+    ~sensorUV(){};
 
     uint16_t init(uint16_t reg);
     bool connected();
@@ -17,22 +15,22 @@ public:
 
     enum
     {
-        LIGHT = 0,
+        UV_INDEX = 0,
         MAX
     };
 };
 
-uint16_t sensorLight::init(uint16_t reg)
+uint16_t sensorUV::init(uint16_t reg)
 {
     uint16_t t_reg = reg;
 
-    for (uint16_t i = 0; i < sensorLight::MAX; i++)
+    for (uint16_t i = 0; i < sensorUV::MAX; i++)
     {
         sensorClass::reg_t value;
         value.addr = t_reg;
         value.type = sensorClass::regType_t::REG_TYPE_S32_ABCD;
-        t_reg += sensorClass::valueLength(value.type);
         value.value.s32 = 0;
+        t_reg += sensorClass::valueLength(value.type);
         m_valueVector.emplace_back(value);
     }
 
@@ -40,18 +38,18 @@ uint16_t sensorLight::init(uint16_t reg)
     return t_reg - reg;
 }
 
-bool sensorLight::sample()
+bool sensorUV::sample()
 {
     GROVE_SWITCH_ADC;
 
-    int32_t value = analogRead(LIGHT_ADC_PIN);
+    float value = (analogRead(SENSOR_ANALOG_PIN)*1000/4.3 - 83)/21;
 
-    m_valueVector[sensorLight::LIGHT].value.s32 = value * SCALE;
+    m_valueVector[sensorUV::UV_INDEX].value.s32 = (int)(value * SCALE);
 
     return true;
 }
 
-bool sensorLight::connected()
+bool sensorUV::connected()
 {
     return _connected;
 }

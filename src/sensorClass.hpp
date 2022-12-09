@@ -6,6 +6,9 @@
 
 #define GROVE_SWITCH_PIN D10
 
+#define SENSOR_ANALOG_PIN A3
+#define SENSOR_DIGITAL_PIN D3
+
 #define GROVE_SWITCH_IIC                 \
     digitalWrite(GROVE_SWITCH_PIN, LOW); \
     delay(10)
@@ -14,6 +17,7 @@
     delay(10)
 
 #define SCALE 1000
+bool i2c_available;
 
 class sensorClass
 {

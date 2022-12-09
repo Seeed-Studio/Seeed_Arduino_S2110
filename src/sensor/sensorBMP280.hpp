@@ -44,15 +44,19 @@ uint16_t sensorBMP280::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
-    GROVE_SWITCH_IIC;
-
-    if (!_bmp280.init())
-    {
+    if (!i2c_available) {
         _connected = false;
-        return false;
+        return 0;
     }
+    GROVE_SWITCH_IIC;
+    Wire.begin();
+    Wire.beginTransmission(BMP280_ADDRESS);
+    if (Wire.endTransmission() != 0) {
+        _connected = false;
+        return 0;
+    }
+    _connected = _bmp280.init();
 
-    _connected = true;
     return t_reg - reg;
 }
 

@@ -7,11 +7,17 @@
 #include <map>
 
 #include "sensor/sensorBMP280.hpp"
+#include "sensor/sensorBME688.hpp"
+#include "sensor/sensorCO2.hpp"
+#include "sensor/sensorSunlight.hpp"
+#include "sensor/sensorMultiGas.hpp"
 #include "sensor/sensorLight.hpp"
 #include "sensor/sensorFlame.hpp"
 #include "sensor/sensorO2.hpp"
-#include "sensor/sensorCO2.hpp"
-#include "sensor/sensorSunlight.hpp"
+#include "sensor/sensorUV.hpp"
+#include "sensor/sensorTurbidity.hpp"
+#include "sensor/sensorTDS.hpp"
+#include "sensor/sensorUltrasonic.hpp"
 
 #define CONTROLLER_DEF_BAUD 9600
 #define CONTROLLER_DEF_SLAVE 1
@@ -24,7 +30,7 @@
 #define CONTROLLER_RS485_RE_PIN D8
 
 RS485Class m_RS485(CONTROLLER_RS485_PORT, CONTROLLER_RS485_TX_PIN, CONTROLLER_RS485_DE_PIN, CONTROLLER_RS485_RE_PIN);
-ModbusRTUServerClass m_ModbusRTUServer(RS485);
+ModbusRTUServerClass m_ModbusRTUServer(m_RS485);
 
 class controllerClass
 {
@@ -50,10 +56,20 @@ public:
     ~controllerClass(){};
     uint16_t addSensor(sensorClass *sensor);
     // bool removeSensor(sensorClass *sensor);
+    void check_grove(void);
     bool begin(uint8_t slave = CONTROLLER_DEF_SLAVE, uint32_t baudrate = CONTROLLER_DEF_BAUD);
     int poll();
     uint16_t size();
 };
+
+void controllerClass::check_grove() {
+    GROVE_SWITCH_ADC;
+    pinMode(SENSOR_DIGITAL_PIN, OUTPUT);
+    digitalWrite(SENSOR_DIGITAL_PIN, HIGH);
+    delay(10);
+    pinMode(SENSOR_DIGITAL_PIN, INPUT);
+    i2c_available = (digitalRead(SENSOR_DIGITAL_PIN) == HIGH);
+}
 
 bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
 {
@@ -63,7 +79,7 @@ bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
     _baudrate = baudrate;
 
     // start the Modbus RTU server, with (slave) id 1
-
+    m_RS485.setDelays(5000, 5000);
     if (!_ModbusRTUServer->begin(_slave, _baudrate))
     {
         Serial.println("Failed to start Modbus RTU Client!");
@@ -164,7 +180,9 @@ int controllerClass::poll()
                 break;
             }
         }
+        Serial.println();
     }
+    Serial.println("================");
 
     return _ModbusRTUServer->poll();
 }
