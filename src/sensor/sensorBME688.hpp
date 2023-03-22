@@ -46,16 +46,17 @@ uint16_t sensorBME688::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
+
     if (!i2c_available) {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(SENSOR_BME688_I2C_ADDR);
     if (Wire.endTransmission() != 0) {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
 
     Serial.println("bme688 init");
@@ -63,7 +64,7 @@ uint16_t sensorBME688::init(uint16_t reg)
     if (!bme688->init()) {
         Serial.println("bme688 init failed");
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
 
     _connected = true;

@@ -41,21 +41,23 @@ uint16_t sensorSunlight::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
-    if (!i2c_available) {
+    if (!i2c_available)
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(_si1151.DEVICE_ADDRESS);
-    if (Wire.endTransmission() != 0) {
+    if (Wire.endTransmission() != 0)
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
     if (!_si1151.Begin())
     {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
 
     _connected = true;

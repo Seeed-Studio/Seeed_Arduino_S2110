@@ -46,14 +46,14 @@ uint16_t sensorMultiGas::init(uint16_t reg)
 
     if (!i2c_available) {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(SENSOR_MULTIGAS_I2C_ADDR);
     if (Wire.endTransmission() != 0) {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
 
     GROVE_SWITCH_IIC;

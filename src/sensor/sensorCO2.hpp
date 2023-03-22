@@ -21,7 +21,7 @@ public:
         CO2,
         HUMIDITY,
         TEMPERATURE,
-        MAX = 0
+        MAX
     };
 
 private:
@@ -41,16 +41,18 @@ uint16_t sensorCO2::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
-    if (!i2c_available) {
+    if (!i2c_available)
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(SENSOR_SCD4X_I2C_ADDR);
-    if (Wire.endTransmission() != 0) {
+    if (Wire.endTransmission() != 0)
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
 
     uint16_t serial0;
@@ -59,19 +61,22 @@ uint16_t sensorCO2::init(uint16_t reg)
     uint32_t timeout = 5000;
 
     _scd4x.begin(Wire);
-    if (_scd4x.stopPeriodicMeasurement()) {
+    if (_scd4x.stopPeriodicMeasurement())
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
-    if (_scd4x.getSerialNumber(serial0, serial1, serial2)) {
+    if (_scd4x.getSerialNumber(serial0, serial1, serial2))
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
-    if (_scd4x.startPeriodicMeasurement()) {
+    if (_scd4x.startPeriodicMeasurement())
+    {
         _connected = false;
-        return 0;
+        return t_reg - reg;
     }
-    
+
     _connected = true;
 
     return t_reg - reg;
