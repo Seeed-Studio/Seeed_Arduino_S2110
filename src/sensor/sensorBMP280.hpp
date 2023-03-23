@@ -13,7 +13,7 @@ public:
     sensorBMP280() : sensorClass("BMP280"){};
     ~sensorBMP280(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -30,7 +30,7 @@ private:
     BMP280 _bmp280; // IIC
 };
 
-uint16_t sensorBMP280::init(uint16_t reg)
+uint16_t sensorBMP280::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 

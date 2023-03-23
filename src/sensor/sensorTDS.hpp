@@ -9,7 +9,7 @@ public:
     sensorTDS() : sensorClass("TDS"){};
     ~sensorTDS(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -20,7 +20,7 @@ public:
     };
 };
 
-uint16_t sensorTDS::init(uint16_t reg)
+uint16_t sensorTDS::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 
@@ -43,8 +43,8 @@ bool sensorTDS::sample()
     GROVE_SWITCH_ADC;
 
     // unit : ppm
-    float vol = analogRead(SENSOR_ANALOG_PIN)*(5.0/1024.0);
-    float value = (133.42/vol*vol*vol - 255.86*vol*vol + 857.39*vol)*0.5;
+    float vol = analogRead(SENSOR_ANALOG_PIN) * (5.0 / 1024.0);
+    float value = (133.42 / vol * vol * vol - 255.86 * vol * vol + 857.39 * vol) * 0.5;
 
     m_valueVector[sensorTDS::TDS].value.s32 = (int)(value * SCALE);
 

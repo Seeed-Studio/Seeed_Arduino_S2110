@@ -7,11 +7,12 @@
 class sensorUltrasonic : public sensorClass
 {
 public:
-    sensorUltrasonic(uint8_t pin = SENSOR_DIGITAL_PIN) : sensorClass("Ultrasonic"){
+    sensorUltrasonic(uint8_t pin = SENSOR_DIGITAL_PIN) : sensorClass("Ultrasonic")
+    {
         ultrasonic = new Ultrasonic(pin);
     };
     ~sensorUltrasonic(){};
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     virtual bool connected();
     virtual bool sample();
 
@@ -25,7 +26,7 @@ private:
     Ultrasonic *ultrasonic;
 };
 
-uint16_t sensorUltrasonic::init(uint16_t reg)
+uint16_t sensorUltrasonic::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorUltrasonic::MAX; i++)
@@ -38,8 +39,10 @@ uint16_t sensorUltrasonic::init(uint16_t reg)
         m_valueVector.emplace_back(value);
     }
 
-    _connected = true;
-    return t_reg - reg;;
+    _connected = i2c_available ? false : true;
+    
+    return t_reg - reg;
+    ;
 }
 
 bool sensorUltrasonic::sample()

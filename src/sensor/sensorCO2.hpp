@@ -12,7 +12,7 @@ public:
     sensorCO2() : sensorClass("CO2"){};
     ~sensorCO2(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -28,7 +28,7 @@ private:
     SensirionI2CScd4x _scd4x; // IIC
 };
 
-uint16_t sensorCO2::init(uint16_t reg)
+uint16_t sensorCO2::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorCO2::MAX; i++)

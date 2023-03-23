@@ -24,7 +24,7 @@
 #define CONTROLLER_DEF_VERSION 0x10000000
 
 #define CONTROLLER_DEF_VALUE 0x0000
-#define CONTROLLER_RS485_PORT Serial1
+#define CONTROLLER_RS485_PORT SERIAL_PORT_HARDWARE
 #define CONTROLLER_RS485_TX_PIN 1
 #define CONTROLLER_RS485_DE_PIN D8
 #define CONTROLLER_RS485_RE_PIN D8
@@ -39,6 +39,7 @@ private:
     uint8_t _slave;
     uint32_t _baudrate;
     uint16_t _regs;
+    bool _i2c_available = false;
 
     std::map<uint16_t, sensorClass *> m_sensorMap;
 
@@ -62,18 +63,23 @@ public:
     uint16_t size();
 };
 
-void controllerClass::check_grove() {
+void controllerClass::check_grove()
+{
     GROVE_SWITCH_ADC;
-    pinMode(SENSOR_DIGITAL_PIN, OUTPUT);
-    digitalWrite(SENSOR_DIGITAL_PIN, HIGH);
+    pinMode(SENSOR_ANALOG_PIN, OUTPUT);
+    digitalWrite(SENSOR_ANALOG_PIN, HIGH);
     delay(10);
-    pinMode(SENSOR_DIGITAL_PIN, INPUT);
-    i2c_available = (digitalRead(SENSOR_DIGITAL_PIN) == HIGH);
+    pinMode(SENSOR_ANALOG_PIN, INPUT);
+    // check i2c sensor
+    _i2c_available = (digitalRead(SENSOR_ANALOG_PIN) == HIGH);
+    if (!_i2c_available)
+    {
+        _i2c_available = (analogRead(SENSOR_ANALOG_PIN) > 100 && analogRead(SENSOR_ANALOG_E_PIN) > 100);
+    }
 }
 
 bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
 {
-    pinMode(GROVE_SWITCH_PIN, OUTPUT);
 
     _slave = slave;
     _baudrate = baudrate;
@@ -206,7 +212,7 @@ uint16_t controllerClass::addSensor(sensorClass *_sensor)
 
     m_sensorMap.insert(std::pair<uint16_t, sensorClass *>(m_sensorMap.size(), _sensor));
 
-    regs = _sensor->init(_regs);
+    regs = _sensor->init(_regs, _i2c_available);
 
     _regs += regs;
 

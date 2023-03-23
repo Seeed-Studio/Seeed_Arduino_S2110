@@ -11,7 +11,7 @@ public:
     sensorFlame() : sensorClass("Flame"){};
     ~sensorFlame(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -22,7 +22,7 @@ public:
     };
 };
 
-uint16_t sensorFlame::init(uint16_t reg)
+uint16_t sensorFlame::init(uint16_t reg, bool i2c_available)
 {
 
     uint16_t t_reg = reg;

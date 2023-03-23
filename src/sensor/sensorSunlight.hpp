@@ -11,7 +11,7 @@ public:
     sensorSunlight() : sensorClass("Sunlight"){};
     ~sensorSunlight(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -27,7 +27,7 @@ private:
     Si115X _si1151; // IIC
 };
 
-uint16_t sensorSunlight::init(uint16_t reg)
+uint16_t sensorSunlight::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 

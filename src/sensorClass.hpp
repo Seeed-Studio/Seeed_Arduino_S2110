@@ -5,19 +5,23 @@
 #include <vector>
 
 #define GROVE_SWITCH_PIN D10
-
 #define SENSOR_ANALOG_PIN A3
+#define SENSOR_ANALOG_E_PIN A2
 #define SENSOR_DIGITAL_PIN D3
+#define SENSOR_DIGITAL_E_PIN D2
+#define SENSOR_IIC_SCL_PIN SCL
+#define SENSOR_IIC_SDA_PIN SDA
 
 #define GROVE_SWITCH_IIC                 \
+    pinMode(GROVE_SWITCH_PIN, OUTPUT);   \
     digitalWrite(GROVE_SWITCH_PIN, LOW); \
     delay(10)
 #define GROVE_SWITCH_ADC                  \
+    pinMode(GROVE_SWITCH_PIN, OUTPUT);    \
     digitalWrite(GROVE_SWITCH_PIN, HIGH); \
     delay(10)
 
 #define SCALE 1000
-bool i2c_available;
 
 class sensorClass
 {
@@ -50,7 +54,7 @@ public:
         } value;
     } reg_t;
 
-    virtual uint16_t init(uint16_t reg) = 0;
+    virtual uint16_t init(uint16_t reg, bool i2c_available) = 0;
     virtual bool connected() = 0;
     virtual bool sample() = 0;
     std::vector<sensorClass::reg_t> getMeasureValue();

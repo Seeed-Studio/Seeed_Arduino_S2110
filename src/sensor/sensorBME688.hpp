@@ -10,21 +10,22 @@
 class sensorBME688 : public sensorClass
 {
 public:
-    sensorBME688(uint8_t addr = SENSOR_BME688_I2C_ADDR) : sensorClass("BME688"){
+    sensorBME688(uint8_t addr = SENSOR_BME688_I2C_ADDR) : sensorClass("BME688")
+    {
         bme688 = new Seeed_BME680((uint8_t)addr);
     };
     ~sensorBME688(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
     enum
     {
         TEMPERATURE = 0x00, // C
-        PRESSURE = 0x01, // KPa
-        HUMIDITY = 0x02, // %
-        GAS = 0x03, // Kohms
+        PRESSURE = 0x01,    // KPa
+        HUMIDITY = 0x02,    // %
+        GAS = 0x03,         // Kohms
         MAX
     };
 
@@ -32,7 +33,7 @@ private:
     Seeed_BME680 *bme688;
 };
 
-uint16_t sensorBME688::init(uint16_t reg)
+uint16_t sensorBME688::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 
@@ -46,22 +47,24 @@ uint16_t sensorBME688::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
-
-    if (!i2c_available) {
+    if (!i2c_available)
+    {
         _connected = false;
         return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(SENSOR_BME688_I2C_ADDR);
-    if (Wire.endTransmission() != 0) {
+    if (Wire.endTransmission() != 0)
+    {
         _connected = false;
         return t_reg - reg;
     }
 
     Serial.println("bme688 init");
     GROVE_SWITCH_IIC;
-    if (!bme688->init()) {
+    if (!bme688->init())
+    {
         Serial.println("bme688 init failed");
         _connected = false;
         return t_reg - reg;

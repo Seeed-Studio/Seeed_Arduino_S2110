@@ -13,7 +13,7 @@ public:
     sensorMultiGas() : sensorClass("MultiGas"){};
     ~sensorMultiGas(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -30,7 +30,7 @@ private:
     GAS_GMXXX<TwoWire> gas;
 };
 
-uint16_t sensorMultiGas::init(uint16_t reg)
+uint16_t sensorMultiGas::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 
@@ -44,14 +44,16 @@ uint16_t sensorMultiGas::init(uint16_t reg)
         t_reg += sensorClass::valueLength(value.type);
     }
 
-    if (!i2c_available) {
+    if (!i2c_available)
+    {
         _connected = false;
         return t_reg - reg;
     }
     GROVE_SWITCH_IIC;
     Wire.begin();
     Wire.beginTransmission(SENSOR_MULTIGAS_I2C_ADDR);
-    if (Wire.endTransmission() != 0) {
+    if (Wire.endTransmission() != 0)
+    {
         _connected = false;
         return t_reg - reg;
     }

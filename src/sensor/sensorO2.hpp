@@ -12,7 +12,7 @@ public:
     sensorO2() : sensorClass("O2"){};
     ~sensorO2(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -23,7 +23,7 @@ public:
     };
 };
 
-uint16_t sensorO2::init(uint16_t reg)
+uint16_t sensorO2::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
     for (uint16_t i = 0; i < sensorO2::MAX; i++)

@@ -9,7 +9,7 @@ public:
     sensorUV() : sensorClass("UV V1.1"){};
     ~sensorUV(){};
 
-    uint16_t init(uint16_t reg);
+    uint16_t init(uint16_t reg, bool i2c_available);
     bool connected();
     bool sample();
 
@@ -20,7 +20,7 @@ public:
     };
 };
 
-uint16_t sensorUV::init(uint16_t reg)
+uint16_t sensorUV::init(uint16_t reg, bool i2c_available)
 {
     uint16_t t_reg = reg;
 
@@ -34,7 +34,7 @@ uint16_t sensorUV::init(uint16_t reg)
         m_valueVector.emplace_back(value);
     }
 
-    _connected = true;
+    _connected = i2c_available ? false : true;
     return t_reg - reg;
 }
 
@@ -42,7 +42,7 @@ bool sensorUV::sample()
 {
     GROVE_SWITCH_ADC;
 
-    float value = (analogRead(SENSOR_ANALOG_PIN)*1000/4.3 - 83)/21;
+    float value = (analogRead(SENSOR_ANALOG_PIN) * 1000 / 4.3 - 83) / 21;
 
     m_valueVector[sensorUV::UV_INDEX].value.s32 = (int)(value * SCALE);
 
