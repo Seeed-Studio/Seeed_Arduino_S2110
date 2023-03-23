@@ -6,8 +6,8 @@ controllerClass controller;
 void setup()
 {
   Serial.begin(9600);
-  while (!Serial)
-    ;
+  // while (!Serial)
+  //   ;
 
   controller.check_grove();
 
