@@ -18,9 +18,9 @@ public:
 
     enum
     {
-        CO2,
-        HUMIDITY,
         TEMPERATURE,
+        HUMIDITY,
+        CO2,
         MAX
     };
 

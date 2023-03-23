@@ -44,6 +44,7 @@ bool sensorFlame::sample()
 {
     GROVE_SWITCH_ADC;
 
+    pinMode(FLAME_DIGITAL_PIN, INPUT);
     int value = digitalRead(FLAME_DIGITAL_PIN);
 
     m_valueVector[FLAME].value.s32 = value * SCALE;
