@@ -24,13 +24,6 @@
 #define CONTROLLER_DEF_VERSION 0x10000000
 
 #define CONTROLLER_DEF_VALUE 0x0000
-#define CONTROLLER_RS485_PORT SERIAL_PORT_HARDWARE
-#define CONTROLLER_RS485_TX_PIN 1
-#define CONTROLLER_RS485_DE_PIN D8
-#define CONTROLLER_RS485_RE_PIN D8
-
-RS485Class m_RS485(CONTROLLER_RS485_PORT, CONTROLLER_RS485_TX_PIN, CONTROLLER_RS485_DE_PIN, CONTROLLER_RS485_RE_PIN);
-ModbusRTUServerClass m_ModbusRTUServer(m_RS485);
 
 class controllerClass
 {
@@ -50,10 +43,8 @@ private:
         REG_VERSION,
     };
 
-    ModbusRTUServerClass *_ModbusRTUServer;
-
 public:
-    controllerClass(ModbusRTUServerClass &ModbusRTUServer = m_ModbusRTUServer) : _ModbusRTUServer(&ModbusRTUServer), _regs(4){};
+    controllerClass() : _regs(4){};
     ~controllerClass(){};
     uint16_t addSensor(sensorClass *sensor);
     // bool removeSensor(sensorClass *sensor);
@@ -65,6 +56,7 @@ public:
 
 void controllerClass::check_grove()
 {
+    // Check if an analog type sensor is connected
     GROVE_SWITCH_ADC;
     pinMode(SENSOR_ANALOG_PIN, OUTPUT);
     digitalWrite(SENSOR_ANALOG_PIN, HIGH);
@@ -85,8 +77,8 @@ bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
     _baudrate = baudrate;
 
     // start the Modbus RTU server, with (slave) id 1
-    m_RS485.setDelays(5000, 5000);
-    if (!_ModbusRTUServer->begin(_slave, _baudrate))
+    RS485.setDelays(5000, 5000);
+    if (!ModbusRTUServer.begin(_slave, _baudrate))
     {
         Serial.println("Failed to start Modbus RTU Client!");
         while (1)
@@ -99,25 +91,25 @@ bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
     Serial.print("regs: ");
     Serial.println(_regs);
 
-    _ModbusRTUServer->configureInputRegisters(0x00, _regs);
-    _ModbusRTUServer->configureHoldingRegisters(0x00, _regs);
+    ModbusRTUServer.configureInputRegisters(0x00, _regs);
+    ModbusRTUServer.configureHoldingRegisters(0x00, _regs);
 
-    _ModbusRTUServer->inputRegisterWrite(controllerClass::REG_ADDR, _slave);
-    _ModbusRTUServer->holdingRegisterWrite(controllerClass::REG_ADDR, _slave);
+    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_ADDR, _slave);
+    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_ADDR, _slave);
 
-    _ModbusRTUServer->inputRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
-    _ModbusRTUServer->holdingRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
+    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
+    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
 
-    _ModbusRTUServer->inputRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
-    _ModbusRTUServer->inputRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
-    _ModbusRTUServer->holdingRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
-    _ModbusRTUServer->holdingRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
+    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
+    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
+    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
+    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
 
     /* skip head information */
     for (uint16_t i = 4; i < _regs; i += 1)
     {
-        _ModbusRTUServer->inputRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
-        _ModbusRTUServer->holdingRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
+        ModbusRTUServer.inputRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
+        ModbusRTUServer.holdingRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
     }
 
     return true;
@@ -146,41 +138,41 @@ int controllerClass::poll()
             {
             case sensorClass::regType_t::REG_TYPE_U16_AB:
                 Serial.println(m_iter->value.u16);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, m_iter->value.u16);
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, m_iter->value.u16);
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, m_iter->value.u16);
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, m_iter->value.u16);
                 break;
             case sensorClass::regType_t::REG_TYPE_S16_AB:
                 Serial.println(m_iter->value.s16);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, m_iter->value.s16);
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, m_iter->value.s16);
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, m_iter->value.s16);
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, m_iter->value.s16);
                 break;
             case sensorClass::regType_t::REG_TYPE_U32_ABCD:
                 Serial.println(m_iter->value.u32);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 >> 16));
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 >> 16));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 >> 16));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 >> 16));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
                 break;
             case sensorClass::regType_t::REG_TYPE_S32_ABCD:
                 Serial.println(m_iter->value.s32);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 >> 16));
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 >> 16));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 >> 16));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 >> 16));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
                 break;
             case sensorClass::regType_t::REG_TYPE_U32_CDAB:
                 Serial.println(m_iter->value.u32);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 >> 16));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 >> 16));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 >> 16));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.u32 & 0x0000FFFF));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.u32 >> 16));
                 break;
             case sensorClass::regType_t::REG_TYPE_S32_CDAB:
                 Serial.println(m_iter->value.s32);
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
-                _ModbusRTUServer->inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 >> 16));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
-                _ModbusRTUServer->holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 >> 16));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
+                ModbusRTUServer.inputRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 >> 16));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr, (uint16_t)(m_iter->value.s32 & 0x0000FFFF));
+                ModbusRTUServer.holdingRegisterWrite(m_iter->addr + 1, (uint16_t)(m_iter->value.s32 >> 16));
                 break;
             default:
                 break;
@@ -190,7 +182,7 @@ int controllerClass::poll()
     }
     Serial.println("================");
 
-    return _ModbusRTUServer->poll();
+    return ModbusRTUServer.poll();
 }
 
 uint16_t controllerClass::size()
