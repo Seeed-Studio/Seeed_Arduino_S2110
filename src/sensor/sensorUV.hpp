@@ -42,7 +42,12 @@ bool sensorUV::sample()
 {
     GROVE_SWITCH_ADC;
 
-    float value = (analogRead(SENSOR_ANALOG_PIN) * 1000 / 4.3 - 83) / 21;
+    int raw = 0;
+    for(int i = 0; i < 20; i++) {
+        raw += analogRead(SENSOR_ANALOG_PIN);
+    }
+    raw /= 20;
+    float value = (raw * 1000 / 4.3 - 83) / 21;
 
     m_valueVector[sensorUV::UV_INDEX].value.s32 = (int)(value * SCALE);
 
