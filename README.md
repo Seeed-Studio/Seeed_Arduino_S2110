@@ -19,10 +19,10 @@ This is the source code for [SenseCAP S2110 XIAO LoRaWAN SensorBuilder](https://
 Now you can open [Arduino IDE](https://www.arduino.cc/en/software) on the PC and start tinkering!
 
 
+## Software Set Up
 
-## Getting Started
+- **Step 1:** Install the necessary sensor support library :
 
-1. Install the necessary sensor support library :
    [Grove_BMP280](https://github.com/Seeed-Studio/Grove_BMP280)
    [Seeed_BME680](https://github.com/Seeed-Studio/Seeed_BME680)
    [Grove_Sunlight_Sensor](https://github.com/Seeed-Studio/Grove_Sunlight_Sensor/tree/Si1151)
@@ -32,9 +32,14 @@ Now you can open [Arduino IDE](https://www.arduino.cc/en/software) on the PC and
    [arduino-i2c-scd4x](https://github.com/Sensirion/arduino-i2c-scd4x)
    [ArduinoRS485](https://github.com/arduino-libraries/ArduinoRS485)
    [ArduinoModbus](https://github.com/arduino-libraries/ArduinoModbus)
-2. Install `Seeed Studio XIAO RP2040` board. refer to [Seeed Studio XIAO RP2040 with Arduino | Seeed Studio Wiki](https://wiki.seeedstudio.com/XIAO-RP2040-with-Arduino)
-3. Add the following lines at the end of the `xx\Arduino15\packages\rp2040\hardware\rp2040\3.1.0\variants\seeed_xiao_rp2040\pins_arduino.h` file.
 
+- **Step 2:** Install `Seeed Studio XIAO RP2040` board. 
+
+ refer to [Seeed Studio XIAO RP2040 with Arduino | Seeed Studio Wiki](https://wiki.seeedstudio.com/XIAO-RP2040-with-Arduino)
+
+- **Step 2:** Add pin defines.
+
+ Add the following lines at the end of the `xx\Arduino15\packages\rp2040\hardware\rp2040\3.1.0\variants\seeed_xiao_rp2040\pins_arduino.h` file.
 ```c
 // RS485
 #define RS485_SERIAL_PORT Serial1
@@ -43,3 +48,17 @@ Now you can open [Arduino IDE](https://www.arduino.cc/en/software) on the PC and
 #define RS485_DEFAULT_TX_PIN 1
 ```
 
+## How to Add a New Sensor
+
+- **Step 1:** Add a `sensorNEW.hpp` file to the `src\sensor` folder for the new sensor.
+
+- **Step 2:** Define the sensor class and implement the `init()` and `sample()` functions.
+
+ The sensor class should inherits from the `sensorClass` class, and implement the `init()` and `sample()` functions. 
+   The `init()` function is used to initialize the sensor, and than returns a register offset value for Modbus communication.
+   The `sample()` function is used to read the sensor data, returns true when the data is valid, and returns false when the data is invalid.
+
+- **Step 3:** Include the `sensorNEW.hpp` file and call it.
+
+ Add line `#include "sensorNEW.hpp"` to the `src\sensor\sensorBuilder.hpp` file.
+ In the `setup()` function of the `sensorBuilder.ino` file, create the new sensor class object and call the `SensorBuilder.addSensor()` function with it as an argument.
