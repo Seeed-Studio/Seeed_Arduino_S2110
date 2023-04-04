@@ -6,8 +6,8 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-Controller	KEYWORD1
-controllerClass KEYWORD1
+SensorBuilder	KEYWORD1
+SensorBuilderClass KEYWORD1
 sensorClass KEYWORD1
 
 

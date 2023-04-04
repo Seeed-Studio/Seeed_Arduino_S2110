@@ -1,5 +1,5 @@
-#ifndef _CONTROLLER_CLASS_H
-#define _CONTROLLER_CLASS_H
+#ifndef _SENSOR_BUILDER_CLASS_H
+#define _SENSOR_BUILDER_CLASS_H
 
 #include <ArduinoRS485.h>
 #include <ArduinoModbus.h>
@@ -19,13 +19,13 @@
 #include "sensor/sensorTDS.hpp"
 #include "sensor/sensorUltrasonic.hpp"
 
-#define CONTROLLER_DEF_BAUD 9600
-#define CONTROLLER_DEF_SLAVE 1
-#define CONTROLLER_DEF_VERSION 0x10000000
+#define SENSOR_BUILDER_DEF_BAUD 9600
+#define SENSOR_BUILDER_DEF_SLAVE 1
+#define SENSOR_BUILDER_DEF_VERSION 0x10000000
 
-#define CONTROLLER_DEF_VALUE 0x0000
+#define SENSOR_BUILDER_DEF_VALUE 0x0000
 
-class controllerClass
+class SensorBuilderClass
 {
 private:
     /* data */
@@ -44,17 +44,17 @@ private:
     };
 
 public:
-    controllerClass() : _regs(4){};
-    ~controllerClass(){};
+    SensorBuilderClass() : _regs(4){};
+    ~SensorBuilderClass(){};
     uint16_t addSensor(sensorClass *sensor);
     // bool removeSensor(sensorClass *sensor);
     void check_grove(void);
-    bool begin(uint8_t slave = CONTROLLER_DEF_SLAVE, uint32_t baudrate = CONTROLLER_DEF_BAUD);
+    bool begin(uint8_t slave = SENSOR_BUILDER_DEF_SLAVE, uint32_t baudrate = SENSOR_BUILDER_DEF_BAUD);
     int poll();
     uint16_t size();
 };
 
-void controllerClass::check_grove()
+void SensorBuilderClass::check_grove()
 {
     // Check if an analog type sensor is connected
     GROVE_SWITCH_ADC;
@@ -70,7 +70,7 @@ void controllerClass::check_grove()
     }
 }
 
-bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
+bool SensorBuilderClass::begin(uint8_t slave, uint32_t baudrate)
 {
 
     _slave = slave;
@@ -86,7 +86,7 @@ bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
     }
 
     Serial.print("Version: ");
-    Serial.println(CONTROLLER_DEF_VERSION, HEX);
+    Serial.println(SENSOR_BUILDER_DEF_VERSION, HEX);
 
     Serial.print("regs: ");
     Serial.println(_regs);
@@ -94,28 +94,28 @@ bool controllerClass::begin(uint8_t slave, uint32_t baudrate)
     ModbusRTUServer.configureInputRegisters(0x00, _regs);
     ModbusRTUServer.configureHoldingRegisters(0x00, _regs);
 
-    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_ADDR, _slave);
-    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_ADDR, _slave);
+    ModbusRTUServer.inputRegisterWrite(SensorBuilderClass::REG_ADDR, _slave);
+    ModbusRTUServer.holdingRegisterWrite(SensorBuilderClass::REG_ADDR, _slave);
 
-    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
-    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_BAUD, _baudrate / 100);
+    ModbusRTUServer.inputRegisterWrite(SensorBuilderClass::REG_BAUD, _baudrate / 100);
+    ModbusRTUServer.holdingRegisterWrite(SensorBuilderClass::REG_BAUD, _baudrate / 100);
 
-    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
-    ModbusRTUServer.inputRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
-    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_VERSION, (uint16_t)(CONTROLLER_DEF_VERSION >> 16));
-    ModbusRTUServer.holdingRegisterWrite(controllerClass::REG_VERSION + 1, (uint16_t)(CONTROLLER_DEF_VERSION & 0x0000FFFF));
+    ModbusRTUServer.inputRegisterWrite(SensorBuilderClass::REG_VERSION, (uint16_t)(SENSOR_BUILDER_DEF_VERSION >> 16));
+    ModbusRTUServer.inputRegisterWrite(SensorBuilderClass::REG_VERSION + 1, (uint16_t)(SENSOR_BUILDER_DEF_VERSION & 0x0000FFFF));
+    ModbusRTUServer.holdingRegisterWrite(SensorBuilderClass::REG_VERSION, (uint16_t)(SENSOR_BUILDER_DEF_VERSION >> 16));
+    ModbusRTUServer.holdingRegisterWrite(SensorBuilderClass::REG_VERSION + 1, (uint16_t)(SENSOR_BUILDER_DEF_VERSION & 0x0000FFFF));
 
     /* skip head information */
     for (uint16_t i = 4; i < _regs; i += 1)
     {
-        ModbusRTUServer.inputRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
-        ModbusRTUServer.holdingRegisterWrite(i, (uint16_t)(CONTROLLER_DEF_VALUE >> 16));
+        ModbusRTUServer.inputRegisterWrite(i, (uint16_t)(SENSOR_BUILDER_DEF_VALUE >> 16));
+        ModbusRTUServer.holdingRegisterWrite(i, (uint16_t)(SENSOR_BUILDER_DEF_VALUE >> 16));
     }
 
     return true;
 }
 
-int controllerClass::poll()
+int SensorBuilderClass::poll()
 {
     for (auto iter = m_sensorMap.begin(); iter != m_sensorMap.end(); ++iter)
     {
@@ -185,12 +185,12 @@ int controllerClass::poll()
     return ModbusRTUServer.poll();
 }
 
-uint16_t controllerClass::size()
+uint16_t SensorBuilderClass::size()
 {
     return m_sensorMap.size();
 }
 
-uint16_t controllerClass::addSensor(sensorClass *_sensor)
+uint16_t SensorBuilderClass::addSensor(sensorClass *_sensor)
 {
     uint16_t regs = 0;
 
@@ -211,7 +211,7 @@ uint16_t controllerClass::addSensor(sensorClass *_sensor)
     return regs;
 }
 
-// bool controllerClass::removeSensor(sensorClass *_sensor)
+// bool SensorBuilderClass::removeSensor(sensorClass *_sensor)
 // {
 //     for (std::map<uint16_t, sensorClass *>::iterator iter = m_sensorMap.begin(); iter != m_sensorMap.end(); ++iter)
 //     {
