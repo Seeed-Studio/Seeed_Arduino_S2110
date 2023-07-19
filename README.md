@@ -234,5 +234,5 @@ void setup()
   </tr>
 </tbody>
 </table>
-> Modbus register addresses 0x0000 to 0x0003 are reserved for storing module system information, where 0x0001 is the module I2C address with a default value of 1 and a maximum value of 247, 0x0001 is the serial port baud rate with a default value of 96 (corresponding to 9600), and 0x0002 to 0x0003 are for software version.
+> Modbus register addresses 0x0000 to 0x0003 are reserved for storing module system information, where 0x0000 is the modbus address with a default value of 1 and a maximum value of 247, 0x0001 is the serial port baud rate with a default value of 96 (corresponding to 9600), and 0x0002 to 0x0003 are for software version.
 
