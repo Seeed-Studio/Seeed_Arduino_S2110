@@ -38,7 +38,7 @@ Now you can open [Arduino IDE](https://www.arduino.cc/en/software) on the PC and
 
  refer to [Seeed Studio XIAO RP2040 with Arduino | Seeed Studio Wiki](https://wiki.seeedstudio.com/XIAO-RP2040-with-Arduino)
 
-- **Step 2:** Add pin defines.
+- **Step 3:** Add pin defines.
 
  Add the following lines at the end of the `xx\Arduino15\packages\rp2040\hardware\rp2040\3.1.0\variants\seeed_xiao_rp2040\pins_arduino.h` file.
 ```c
