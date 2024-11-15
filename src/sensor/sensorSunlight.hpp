@@ -69,13 +69,11 @@ bool sensorSunlight::sample()
 {
     GROVE_SWITCH_IIC;
 
-    float IR = _si1151.ReadHalfWord();
-    float VLR = _si1151.ReadHalfWord_VISIBLE();
-    float UV = _si1151.ReadHalfWord_UV();
+    float IR = _si1151.ReadIR();
+    float VLR = _si1151.ReadVisible();
 
     m_valueVector[SUNLIGHT_IR].value.s32 = IR * SCALE;
     m_valueVector[SUNLIGHT_VLR].value.s32 = VLR * SCALE;
-    m_valueVector[SUNLIGHT_UV].value.s32 = UV * SCALE;
 
     return true;
 }
